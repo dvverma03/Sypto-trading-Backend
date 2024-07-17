@@ -14,6 +14,7 @@ app.use(
   cors()
 );
 
+
 const connectToDatabase = async () => {
   try {
     await mongoose.connect(process.env.DATABASE_URL, {
@@ -29,6 +30,8 @@ const connectToDatabase = async () => {
 };
 
 connectToDatabase();
+
+let Otp=null;
 
 app.post("/register", async (req, res) => {
     try {
@@ -79,13 +82,9 @@ app.post("/register", async (req, res) => {
 app.post("/verify-otp-register", async (req, res) => {
     try {
       const { fullName,email, UserOtp, password } = req.body;
-  
-      // Check if OTP is correct and not expired
-      if (UserOtp !== Otp) {
+      if (UserOtp != Otp) {
         return res.status(400).json({ error: "Invalid or expired OTP" });
       }
-  
-      // Hash the password
       const hash = await bcrypt.hash(password, 10);
   
       // Create the new user
@@ -94,6 +93,8 @@ app.post("/verify-otp-register", async (req, res) => {
         email:email,
         password: hash,
       });
+
+      console.log("new user", newUser)
   
       res.status(200).json({
         status: "User created successfully",
@@ -166,7 +167,7 @@ app.post("/verify-otp-login", async (req, res) => {
     const {email, UserOtp } = req.body;
 
     // Check if OTP is correct and not expired
-    if (UserOtp !== Otp) {
+    if (UserOtp != Otp) {
       return res.status(400).json({ error: "Invalid or expired OTP" });
     }
 
